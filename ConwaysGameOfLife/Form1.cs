@@ -1,5 +1,8 @@
 namespace ConwaysGameOfLife;
 
+using GameOfLife;
+using GameOfLife.Rules;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using Timer = System.Windows.Forms.Timer;
 
@@ -7,8 +10,16 @@ public partial class Form1 : Form
 {
     private readonly Timer _drawTimer = new();
     private readonly Matrix _matrix = new();
-    private readonly bool[] _bools = new bool[400*400];
-    private const int width = 400;
+    private const int boardSize = 400;
+
+    private readonly ILifeGame _game;
+    private readonly Gameboard _gameboard;
+
+    private ulong _ticks = 0;
+    private const int ticksToAverage = 60;
+    private readonly long[] _tickTimes = new long[ticksToAverage];
+    private readonly long[] _drawTimes = new long[ticksToAverage];
+    private readonly Stopwatch _stopwatch = new();
 
     public Form1()
     {
@@ -20,10 +31,21 @@ public partial class Form1 : Form
         _drawTimer.Tick += DrawTimer_Tick;
         SizeChanged += Form1_SizeChanged;
 
-        var rnd = new Random();
-        for (int i = 0; i < _bools.Length; i++)
+        _gameboard = new Gameboard(boardSize, boardSize);
+        var rules = new List<IRule>
         {
-            _bools[i] = rnd.Next(2) == 1;
+            new SurvivesRule(),
+            new RevivesRule(),
+            new OverPopulationRule(),
+            new UnderPopulationRule()
+        };
+
+        _game = new LifeGame(_gameboard, rules);
+
+        var rnd = new Random();
+        for (int i = 0; i < boardSize * boardSize; i++)
+        {
+            _gameboard.SetAlive(i % boardSize, i / boardSize, rnd.Next(2) == 1);
         }
 
         UpdateMatronx();
@@ -36,7 +58,7 @@ public partial class Form1 : Form
 
     private void UpdateMatronx()
     {
-        var playingArea = new Rectangle(0, 0, 400, 400);
+        var playingArea = new Rectangle(0, 0, boardSize, boardSize);
         int clientWidth = ClientRectangle.Width;
         int clientHeight = ClientRectangle.Height;
         float ratioX = clientWidth / (float)playingArea.Width;
@@ -50,19 +72,37 @@ public partial class Form1 : Form
 
     private void Form1_Paint(object? sender, PaintEventArgs e)
     {
+        _stopwatch.Restart();
         e.Graphics.Transform = _matrix;
-        for (int i = 0; i < _bools.Length; i++)
+        var grid = _gameboard.Snapshot();
+        for (int i = 0; i < grid.Length; i++)
         {
-            e.Graphics.FillRectangle(_bools[i] ? Brushes.CornflowerBlue : Brushes.OldLace, i % width, i / width, 1, 1);
+            e.Graphics.FillRectangle(grid[i] ? Brushes.CornflowerBlue : Brushes.OldLace, i % boardSize, i / boardSize, 1, 1);
         }
+        _stopwatch.Stop();
+        _drawTimes[_ticks % ticksToAverage] = _stopwatch.ElapsedMilliseconds;
+
+        numTicksLabel.Text = _ticks.ToString();
+        tickLabel.Text = $"Tick: {_tickTimes.Average():F2}";
+        drawLabel.Text = $"Draw: {_drawTimes.Average():F2}";
     }
 
     private void DrawTimer_Tick(object? sender, EventArgs e)
     {
+        _stopwatch.Restart();
+        _game.Tick();
+        _stopwatch.Stop();
+        _tickTimes[_ticks % ticksToAverage] = _stopwatch.ElapsedMilliseconds;
         Invalidate();
+        _ticks++;
     }
 
     private void Form1_Load(object sender, EventArgs e)
+    {
+
+    }
+
+    private void tickLabel_Click(object sender, EventArgs e)
     {
 
     }
