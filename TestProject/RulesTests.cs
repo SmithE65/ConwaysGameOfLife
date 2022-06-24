@@ -1,35 +1,27 @@
-using GameOfLife.Rules;
+using GameOfLife;
 using TestProject.Fakes;
 
 namespace TestProject;
 
 public class RulesTests
 {
-    [Fact]
-    public void SurviveRule_TwoNeighbors_ReturnsTrue()
+    [Theory]
+    [InlineData(1, true, false)]
+    [InlineData(1, false, false)]
+    [InlineData(2, true, true)]
+    [InlineData(2, false, false)]
+    [InlineData(3, true, true)]
+    [InlineData(3, false, true)]
+    [InlineData(4, true, false)]
+    public void ConwayRules_MatchExpected(int liveNeighbors, bool initialState, bool expectedAlive)
     {
         // Arrange
-        var cell = new Cell(true, 2);
-        var sut = new SurvivesRule();
+        var cell = new Cell(initialState, liveNeighbors);
 
         // Act
-        var result = sut.Execute(cell);
+        var result = LifeGame.ConwayRules(cell);
 
         // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void SurviveRule_OneNeighbor_ReturnsFalse()
-    {
-        // Arrange
-        var cell = new Cell(true, 1);
-        var sut = new SurvivesRule();
-
-        // Act
-        var result = sut.Execute(cell);
-
-        // Assert
-        Assert.False(result);
+        Assert.Equal(expectedAlive, result);
     }
 }

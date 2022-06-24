@@ -1,7 +1,6 @@
 namespace ConwaysGameOfLife;
 
 using GameOfLife;
-using GameOfLife.Rules;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using Timer = System.Windows.Forms.Timer;
@@ -32,15 +31,7 @@ public partial class Form1 : Form
         SizeChanged += Form1_SizeChanged;
 
         _gameboard = new Gameboard(boardSize, boardSize);
-        var rules = new List<IRule>
-        {
-            new SurvivesRule(),
-            new RevivesRule(),
-            new OverPopulationRule(),
-            new UnderPopulationRule()
-        };
-
-        _game = new LifeGame(_gameboard, rules);
+        _game = new LifeGame(_gameboard, LifeGame.ConwayRules);
 
         var rnd = new Random();
         for (int i = 0; i < boardSize * boardSize; i++)
@@ -48,15 +39,15 @@ public partial class Form1 : Form
             _gameboard.SetAlive(i % boardSize, i / boardSize, rnd.Next(2) == 1);
         }
 
-        UpdateMatronx();
+        UpdateMatrix();
     }
 
     private void Form1_SizeChanged(object? sender, EventArgs e)
     {
-        UpdateMatronx();
+        UpdateMatrix();
     }
 
-    private void UpdateMatronx()
+    private void UpdateMatrix()
     {
         var playingArea = new Rectangle(0, 0, boardSize, boardSize);
         int clientWidth = ClientRectangle.Width;
@@ -95,15 +86,5 @@ public partial class Form1 : Form
         _tickTimes[_ticks % ticksToAverage] = _stopwatch.ElapsedMilliseconds;
         Invalidate();
         _ticks++;
-    }
-
-    private void Form1_Load(object sender, EventArgs e)
-    {
-
-    }
-
-    private void tickLabel_Click(object sender, EventArgs e)
-    {
-
     }
 }

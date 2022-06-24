@@ -3,9 +3,9 @@
 public class LifeGame : ILifeGame
 {
     private readonly IGameboard _gameboard;
-    private readonly IReadOnlyCollection<IRule> _rules;
+    private readonly Func<ICell, bool> _rules;
 
-    public LifeGame(IGameboard gameboard, IReadOnlyCollection<IRule> rules)
+    public LifeGame(IGameboard gameboard, Func<ICell, bool> rules)
     {
         _gameboard = gameboard;
         _rules = rules;
@@ -13,22 +13,17 @@ public class LifeGame : ILifeGame
 
     public void Tick()
     {
-        _gameboard.UpdateCells(x => Test(x));
+        _gameboard.UpdateCells(x => _rules(x));
     }
 
-    private bool UpdateIsAlive(ICell cell) =>
-        _rules.Select(x => x.Execute(cell))
-            .Where(x => x is not null)
-            .All(x => x == true);
-
-    private static bool Test(ICell cell)
+    public static bool ConwayRules(ICell cell)
     {
         var liveNeighbors = cell.AliveNeighbors;
-        if (cell.IsAlive && (liveNeighbors == 2 || liveNeighbors == 3))
+        if (cell.IsAlive && liveNeighbors == 2)
         {
             return true;
         }
-        else if (!cell.IsAlive && liveNeighbors == 3)
+        else if (liveNeighbors == 3)
         {
             return true;
         }
