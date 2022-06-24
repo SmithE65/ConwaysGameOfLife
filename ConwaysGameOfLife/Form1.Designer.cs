@@ -41,7 +41,6 @@
             this.tickLabel.Size = new System.Drawing.Size(38, 15);
             this.tickLabel.TabIndex = 0;
             this.tickLabel.Text = "label1";
-            this.tickLabel.Click += new System.EventHandler(this.tickLabel_Click);
             // 
             // drawLabel
             // 
@@ -71,7 +70,6 @@
             this.Controls.Add(this.tickLabel);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
