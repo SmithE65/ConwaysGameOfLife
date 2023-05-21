@@ -19,7 +19,7 @@ public class RulesTests
         var cell = new Cell(initialState, liveNeighbors);
 
         // Act
-        var result = LifeGame.ConwayRules(cell);
+        var result = LifeGame.IsAlive(cell);
 
         // Assert
         Assert.Equal(expectedAlive, result);

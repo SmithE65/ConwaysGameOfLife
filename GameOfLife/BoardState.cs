@@ -20,7 +20,7 @@ internal class BoardState : IBoardState
         }
     }
 
-    public bool[] State(int delta = 0)
+    public bool[] GetState(int delta = 0)
     {
         if (delta < 0 || delta >= _depth)
         {

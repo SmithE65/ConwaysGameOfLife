@@ -5,7 +5,7 @@ public class Gameboard : IGameboard
     private readonly int _height;
     private readonly int _width;
     private readonly int _historyDepth = 10;
-    private IBoardState _grid;
+    private readonly IBoardState _grid;
 
     public Gameboard(int height, int width)
     {
@@ -14,15 +14,15 @@ public class Gameboard : IGameboard
         _grid = new BoardState(height, width, _historyDepth);
     }
 
-    public void SetAlive(int x, int y, bool alive = true) => _grid.State()[y * _width + x] = alive;
+    public void SetAlive(int x, int y, bool alive = true) => _grid.GetState()[y * _width + x] = alive;
 
-    public bool[] Snapshot(int delta = 0) => _grid.State(delta);
+    public bool[] Snapshot(int delta = 0) => _grid.GetState(delta);
 
     public void UpdateCells(Func<ICell, bool> func)
     {
         _grid.Next();
-        var current = _grid.State();
-        var gv = new GridView(_grid.State(1), _width, _height);
+        var current = _grid.GetState();
+        var gv = new GridView(_grid.GetState(1), _width, _height);
         var tasks = Enumerable.Range(0, _height)
             .Select(row => Task.Run(() =>
             {
@@ -74,8 +74,8 @@ public class Gameboard : IGameboard
             bool? GetCell(int x, int y) => gv.IsInBounds(x, y) ? gv.ValueAt(x, y) : null;
         }
 
-        public int AliveNeighbors { get; set; }
+        public int AliveNeighbors { get; private set; }
 
-        public bool IsAlive { get; set; }
+        public bool IsAlive { get; private set; }
     }
 }

@@ -16,20 +16,10 @@ public class LifeGame : ILifeGame
         _gameboard.UpdateCells(x => _rules(x));
     }
 
-    public static bool ConwayRules(ICell cell)
+    public static bool IsAlive(ICell cell)
     {
         var liveNeighbors = cell.AliveNeighbors;
-        if (cell.IsAlive && liveNeighbors == 2)
-        {
-            return true;
-        }
-        else if (liveNeighbors == 3)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+
+        return cell.IsAlive && liveNeighbors == 2 || liveNeighbors == 3;
     }
 }

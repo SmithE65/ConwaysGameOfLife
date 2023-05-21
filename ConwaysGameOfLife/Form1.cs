@@ -31,15 +31,19 @@ public partial class Form1 : Form
         SizeChanged += Form1_SizeChanged;
 
         _gameboard = new Gameboard(boardSize, boardSize);
-        _game = new LifeGame(_gameboard, LifeGame.ConwayRules);
+        _game = new LifeGame(_gameboard, LifeGame.IsAlive);
 
+        RandomizeBoard();
+        UpdateMatrix();
+    }
+
+    private void RandomizeBoard()
+    {
         var rnd = new Random();
         for (int i = 0; i < boardSize * boardSize; i++)
         {
             _gameboard.SetAlive(i % boardSize, i / boardSize, rnd.Next(2) == 1);
         }
-
-        UpdateMatrix();
     }
 
     private void Form1_SizeChanged(object? sender, EventArgs e)
